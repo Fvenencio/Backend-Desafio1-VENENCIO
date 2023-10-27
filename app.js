@@ -7,7 +7,7 @@ const productManager = new ProductManager('products.json');
 app.get("/products", async (req, res) => {
   try {
     const limit = req.query.limit;
-    const products = await productManager.getProductsAsync();
+    const products = await productManager.getProducts();
 
     if (limit) {
       const limitedProducts = products.slice(0, parseInt(limit));
@@ -23,7 +23,7 @@ app.get("/products", async (req, res) => {
 app.get("/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productManager.getProductByIdAsync(parseInt(id))
+    const product = await productManager.getProductById(id);
 
     if (product) {
       res.status(200).json(product);
