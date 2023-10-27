@@ -1,19 +1,14 @@
-const fs = require('fs');
+import fs from 'fs';
 
 class ProductManager {
   constructor(filePath) {
     this.filePath = filePath;
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, '[]', 'utf8'); 
-    }
-    this.products = this.loadProducts();
-    this.productIdCounter = this.calculateNextId();
   }
 
-  loadProducts() {
+  async loadProducts() {
     try {
-      if (fs.existsSync(this.filePath)) {
-        const data = fs.readFileSync(this.filePath, 'utf8');
+      if (await fs.access(this.filePath)) {
+        const data = await fs.readFile(this.filePath, 'utf8');
         return JSON.parse(data);
       }
       return [];
@@ -22,80 +17,65 @@ class ProductManager {
     }
   }
 
-  saveProducts() {
-    fs.writeFileSync(this.filePath, JSON.stringify(this.products, null, 2), 'utf8');
+  async saveProducts() {
+    try {
+      await fs.writeFile(this.filePath, JSON.stringify(this.products, null, 2), 'utf8');
+    } catch (error) {
+      throw new Error('Error al guardar productos.');
+    }
   }
 
-  calculateNextId() {
-    const maxId = this.products.reduce((max, product) => (product.id > max ? product.id : max), 0);
+  async calculateNextId() {
+    const products = await this.loadProducts();
+    const maxId = products.reduce((max, product) => (product.id > max ? product.id : max), 0);
     return maxId + 1;
   }
 
-  addProduct(product) {
-    product.id = this.productIdCounter++;
+  async addProduct(product) {
+    product.id = await this.calculateNextId();
     this.products.push(product);
-    this.saveProducts();
+    await this.saveProducts();
     return product.id;
   }
 
-  getProducts() {
+  async getProducts() {
+    this.products = await this.loadProducts();
     return this.products;
   }
 
-  getProductById(id) {
-    const product = this.products.find(p => p.id === id);
+  async getProductById(id) {
+    const products = await this.getProducts();
+    const product = products.find(p => p.id === id);
     if (product) {
       return product;
     } else {
-      console.log('Error: Producto no encontrado.');
+      throw new Error('Producto no encontrado.');
     }
   }
 
-  updateProduct(id, newProductData) {
-    const productIndex = this.products.findIndex(p => p.id === id);
+  async updateProduct(id, newProductData) {
+    const products = await this.getProducts();
+    const productIndex = products.findIndex(p => p.id === id);
     if (productIndex !== -1) {
-      this.products[productIndex] = { ...this.products[productIndex], ...newProductData };
-      this.saveProducts();
+      products[productIndex] = { ...products[productIndex], ...newProductData };
+      await this.saveProducts();
       return true;
     } else {
-      console.log('Error: Producto no encontrado.');
-      return false;
+      throw new Error('Producto no encontrado.');
     }
   }
 
-  deleteProduct(id) {
-    const productIndex = this.products.findIndex(p => p.id === id);
+  async deleteProduct(id) {
+    const products = await this.getProducts();
+    const productIndex = products.findIndex(p => p.id === id);
     if (productIndex !== -1) {
-      this.products.splice(productIndex, 1);
-      this.saveProducts();
-      console.log('Producto eliminado con éxito.');
+      products.splice(productIndex, 1);
+      await this.saveProducts();
+      return true;
     } else {
-      console.log('Error: Producto no encontrado.');
+      throw new Error('Producto no encontrado.');
     }
   }
 }
 
-const productManager = new ProductManager('products.json');
-
-const product1 = {
-  title: 'Iphone 13',
-  description: 'Teléfono inteligente de gama alta desarrollado por Apple Inc',
-  price: 1299,
-  thumbnail: 'imagen1.jpg',
-  stock: 46,
-};
-
-const product2 = {
-  title: 'iphone 14',
-  description: 'Igualado en especificaciones con el 13, pero con una mayor autonomía y mejores cámaras',
-  price: 1499,
-  thumbnail: 'imagen2.jpg',
-  stock: 23,
-};
-
-const productCode1 = productManager.addProduct(product1);
-const productCode2 = productManager.addProduct(product2);
-
-console.log('Lista de productos:', productManager.getProducts());
-console.log('Producto con código 1:', productManager.getProductById(productCode1));
-console.log('Producto con código 3:', productManager.getProductById(3));
+export default ProductManager
