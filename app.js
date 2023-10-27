@@ -1,5 +1,5 @@
 import express from "express";
-import ProductManager from "./DesafioEntregable3-VENENCIO.js";
+import ProductManager from "./DesafioEntregable3-VENENCIO";
 
 const app = express();
 const productManager = new ProductManager('products.json');
