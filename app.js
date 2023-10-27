@@ -23,7 +23,7 @@ app.get("/products", async (req, res) => {
 app.get("/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productManager.getProductByIdAsync(parseInt(id));
+    const product = await productManager.getProductByIdAsync(parseInt(id))
 
     if (product) {
       res.status(200).json(product);

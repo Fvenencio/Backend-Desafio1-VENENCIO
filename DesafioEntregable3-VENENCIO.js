@@ -45,7 +45,7 @@ class ProductManager {
 
   async getProductById(id) {
     const products = await this.getProducts();
-    const product = products.find(p => p.id === id);
+    const product = await productManager.getProductByIdAsync(parseInt(id));
     if (product) {
       return product;
     } else {
