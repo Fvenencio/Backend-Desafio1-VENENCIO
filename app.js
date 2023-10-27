@@ -1,13 +1,13 @@
 import express from "express";
-import ProductManager from "./DesafioEntregable3-VENENCIO.js";
+import ProductManager from "./DesafioEntregable3-VENENCIO";
 
 const app = express();
-const productManager = new ProductManager('products.json');
+const productManager = new ProductManager('products.js');
 
 app.get("/products", async (req, res) => {
   try {
     const limit = req.query.limit;
-    const products = await productManager.getProductsAsync();
+    const products = await productManager.getProducts();
 
     if (limit) {
       const limitedProducts = products.slice(0, parseInt(limit));
@@ -23,7 +23,7 @@ app.get("/products", async (req, res) => {
 app.get("/products/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await productManager.getProductByIdAsync(parseInt(id))
+    const product = await productManager.getProductById(id);
 
     if (product) {
       res.status(200).json(product);
