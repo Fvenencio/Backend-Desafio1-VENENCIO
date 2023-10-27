@@ -7,12 +7,13 @@ class ProductManager {
 
   async loadProducts() {
     try {
-      const data = await fs.promises.readFile(this.filePath, 'utf8');
-      return JSON.parse(data);
+      const products = require(this.filePath);
+      return products;
     } catch (error) {
       return [];
     }
   }
+  
 
   async saveProducts(products) {
     try {
@@ -42,7 +43,7 @@ class ProductManager {
 
   async getProducts() {
     try {
-      const products = await this.loadProducts();
+      const products = require(this.filePath);
       return products;
     } catch (error) {
       throw new Error('Error al obtener productos.');
