@@ -1,8 +1,8 @@
 import express from "express";
-import ProductManager from "./DesafioEntregable3-VENENCIO";
+import ProductManager from "./ProductManager.js";
 
 const app = express();
-const productManager = new ProductManager('products.js');
+const productManager = new ProductManager('products.json');
 
 app.get("/products", async (req, res) => {
   try {
@@ -20,10 +20,10 @@ app.get("/products", async (req, res) => {
   }
 });
 
-app.get("/products/:id", async (req, res) => {
+app.get("/products/:pid", async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await productManager.getProductById(id);
+    const { pid } = req.params;
+    const product = await productManager.getProductById(pid);
 
     if (product) {
       res.status(200).json(product);
@@ -37,4 +37,4 @@ app.get("/products/:id", async (req, res) => {
 
 const PORT = 8080;
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.listen(PORT, () => console.log(`El servidor corre en el puerto ${PORT}`));

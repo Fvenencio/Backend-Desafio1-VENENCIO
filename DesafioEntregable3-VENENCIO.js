@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { products } from './products.js';
 
 class ProductManager {
   constructor(filePath) {
@@ -7,14 +8,12 @@ class ProductManager {
 
   async loadProducts() {
     try {
-      const products = require(this.filePath);
       return products;
     } catch (error) {
       return [];
     }
   }
   
-
   async saveProducts(products) {
     try {
       await fs.promises.writeFile(this.filePath, JSON.stringify(products, null, 2), 'utf8');
@@ -24,7 +23,6 @@ class ProductManager {
   }
 
   async calculateNextId() {
-    const products = await this.loadProducts();
     const maxId = products.reduce((max, product) => (product.id > max ? product.id : max), 0);
     return maxId + 1;
   }
@@ -43,7 +41,6 @@ class ProductManager {
 
   async getProducts() {
     try {
-      const products = require(this.filePath);
       return products;
     } catch (error) {
       throw new Error('Error al obtener productos.');
@@ -52,7 +49,6 @@ class ProductManager {
 
   async getProductById(id) {
     try {
-      const products = await this.getProducts();
       const product = products.find((p) => p.id === parseInt(id));
       if (product) {
         return product;
@@ -66,7 +62,6 @@ class ProductManager {
 
   async updateProduct(id, newProductData) {
     try {
-      const products = await this.getProducts();
       const productIndex = products.findIndex((p) => p.id === id);
       if (productIndex !== -1) {
         products[productIndex] = { ...products[productIndex], ...newProductData };
@@ -82,7 +77,6 @@ class ProductManager {
 
   async deleteProduct(id) {
     try {
-      const products = await this.getProducts();
       const productIndex = products.findIndex((p) => p.id === id);
       if (productIndex !== -1) {
         products.splice(productIndex, 1);
