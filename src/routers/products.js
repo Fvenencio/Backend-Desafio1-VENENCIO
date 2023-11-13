@@ -2,12 +2,13 @@ import { Router } from "express";
 import { productos } from "../controlllers/products.js";
 import { productValidator } from "../middlewares/productvalidator.js";
 import { imageUploader } from "../middlewares/multer.js";
+import socketServer from "../../app.js";
 
 const products_router = Router();
 
-products_router.get("/", (req, res) => {
+products_router.get("/", async (req, res) => {
   const limit = req.query.limit;
-  const all_products = productos.getProducts();
+  const all_products = await productos.getProducts();
   if (!all_products) {
     return res
       .status(404)
@@ -21,9 +22,9 @@ products_router.get("/", (req, res) => {
   res.status(200).json({ success: true, response: all_products });
 });
 
-products_router.get("/:id", (req, res) => {
+products_router.get("/:id", async (req, res) => {
   const id = req.params.id;
-  const one_product = productos.getProductById(id);
+  const one_product = await productos.getProductById(id);
   res.status(200).json({ success: true, response: one_product });
 });
 
@@ -55,6 +56,8 @@ products_router.post("/", productValidator, async (req, res) => {
     if (typeof new_product != "object") {
       return res.status(400).json({ success: false, response: new_product });
     }
+
+    socketServer.emit("products", await productos.getProducts());
 
     return res.status(201).json({ success: true, response: new_product });
   } catch (error) {
@@ -96,6 +99,8 @@ products_router.post(
         return res.status(400).json({ success: false, response: new_product });
       }
 
+      socketServer.emit("products", await productos.getProducts());
+
       return res.status(201).json({ success: true, response: new_product });
     } catch (error) {
       return res.status(500).json({ success: false, response: error });
@@ -119,6 +124,8 @@ products_router.put("/:id", async (req, res) => {
       return res.status(400).json({ success: false, response: product });
     }
 
+    socketServer.emit("products", await productos.getProducts());
+
     return res.status(200).json({ success: true, response: product });
   } catch (error) {
     return res.status(500).json({ success: false, response: error });
@@ -133,6 +140,8 @@ products_router.delete("/:id", async (req, res) => {
     if (product != "Producto eliminado") {
       return res.status(400).json({ success: false, response: product });
     }
+
+    socketServer.emit("products", await productos.getProducts());
 
     return res.status(200).json({ success: true, response: product });
   } catch (error) {
