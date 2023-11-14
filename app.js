@@ -1,17 +1,14 @@
 import express from "express";
-import productsRouter from "./routes/products.js";
+import productsRouter from "./src/routers/products.js";
 import Handlebars  from "express-handlebars";
-import cartsRouter from "./routes/cart.js";
-import index_router from "./src/routers/index.js";
-import viewsRouter from "./routes/views.js";
-import { __dirname } from "./utils.js";
+import cartsRouter from "./src/routers/carts.js";
+import viewsRouter from "./src/routers/views.js";
 import { Server } from "socket.io";
-import { ProductManager } from "./managers/productManager.js";
+import ProductManager from "./src/managers/productsmanager.js";
 import fs from "fs";
 import path from "path";
 
-
-const store = new ProductManager();
+const store = new ProductManager('./src/db/products.json', 'products');
 const PORT = 8080;
 const app = express();
 const httpServer = app.listen(PORT, () => {
@@ -19,10 +16,10 @@ const httpServer = app.listen(PORT, () => {
 });
 
 const socketServer = new Server(httpServer);
-app.engine("handlebars", handlebars.engine());
-app.set("views", __dirname + "/views");
+app.engine("handlebars", Handlebars.engine());
+app.set("views", path.resolve('views'));
 app.set("view engine", "handlebars");
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(path.resolve('public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,7 +34,7 @@ socketServer.on("connection", async (socket) => {
   socket.emit("products", products);
   
  socket.on("addProduct", (newProduct) => {
-  const filePath = path.join(__dirname, 'data', 'products.json');
+  const filePath = path.resolve('data', 'products.json');
  
   fs.readFile(filePath, 'utf8', (err, data) => {
   if (err) {

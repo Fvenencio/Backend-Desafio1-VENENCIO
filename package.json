@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "preentrega1",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "dev:express": "node --watch .",
